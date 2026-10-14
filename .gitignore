@@ -1,0 +1,26 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Test results and coverage
+[Tt]est[Rr]esults/
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+.nuget/packages/
+
+# Logs
+*.log
+
+# OS-generated files
+.DS_Store
+Thumbs.db
