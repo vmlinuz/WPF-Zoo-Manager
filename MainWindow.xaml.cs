@@ -1,14 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WPF_Zoo_Manager.Data;
 using WPF_Zoo_Manager.Models;
 
@@ -19,6 +12,8 @@ namespace WPF_Zoo_Manager
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const int MaximumInputLength = 50;
+
         private ListBox? _activeListBox;
         private object? _editingItem;
 
@@ -49,12 +44,7 @@ namespace WPF_Zoo_Manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    this,
-                    ex.Message,
-                    "Database error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowDatabaseError(ex, "Database error");
             }
         }
 
@@ -96,12 +86,7 @@ namespace WPF_Zoo_Manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    this,
-                    ex.Message,
-                    "Database error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowDatabaseError(ex, "Database error");
             }
         }
 
@@ -156,29 +141,18 @@ namespace WPF_Zoo_Manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    this,
-                    ex.Message,
-                    "Database operation error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowDatabaseError(ex, "Database operation error");
             }
         }
 
         private async void AddZoo_Click(object sender, RoutedEventArgs e)
         {
-            string location = MyTextBox.Text.Trim();
-
-            if (location.Length is 0 or > 50)
-            {
-                MessageBox.Show(
-                    this,
-                    "Zoo location must contain 1–50 characters.",
+            if (!TryGetValidInput(
+                    MyTextBox.Text,
+                    "Zoo location",
                     "Invalid location",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                    out string location))
                 return;
-            }
 
             try
             {
@@ -200,21 +174,11 @@ namespace WPF_Zoo_Manager
             }
             catch (DbUpdateException ex)
             {
-                MessageBox.Show(
-                    this,
-                    ex.GetBaseException().Message,
-                    "Database insert error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowDatabaseError(ex, "Database insert error", useBaseException: true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    this,
-                    ex.Message,
-                    "Database error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowDatabaseError(ex, "Database error");
             }
         }
 
@@ -284,12 +248,7 @@ namespace WPF_Zoo_Manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    this,
-                    ex.Message,
-                    "Database operation error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowDatabaseError(ex, "Database operation error");
             }
         }
 
@@ -357,12 +316,7 @@ namespace WPF_Zoo_Manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    this,
-                    ex.Message,
-                    "Database deletion error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowDatabaseError(ex, "Database deletion error");
             }
         }
 
@@ -370,18 +324,12 @@ namespace WPF_Zoo_Manager
             object sender,
             RoutedEventArgs e)
         {
-            string name = MyTextBox.Text.Trim();
-
-            if (string.IsNullOrWhiteSpace(name) || name.Length > 50)
-            {
-                MessageBox.Show(
-                    this,
-                    "Animal name must contain 1–50 characters.",
+            if (!TryGetValidInput(
+                    MyTextBox.Text,
+                    "Animal name",
                     "Invalid animal name",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                    out string name))
                 return;
-            }
 
             try
             {
@@ -403,21 +351,11 @@ namespace WPF_Zoo_Manager
             }
             catch (DbUpdateException ex)
             {
-                MessageBox.Show(
-                    this,
-                    ex.GetBaseException().Message,
-                    "Database insert error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowDatabaseError(ex, "Database insert error", useBaseException: true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    this,
-                    ex.Message,
-                    "Database error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowDatabaseError(ex, "Database error");
             }
         }
 
@@ -485,12 +423,7 @@ namespace WPF_Zoo_Manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    this,
-                    ex.Message,
-                    "Database operation error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowDatabaseError(ex, "Database operation error");
             }
         }
 
@@ -502,13 +435,12 @@ namespace WPF_Zoo_Manager
                 _editingItem is not Zoo zoo)
                 return;
 
-            string location = MyTextBox.Text.Trim();
-
-            if (location.Length is 0 or > 50)
-            {
-                MessageBox.Show("Location must contain 1–50 characters.");
+            if (!TryGetValidInput(
+                    MyTextBox.Text,
+                    "Location",
+                    errorTitle: null,
+                    out string location))
                 return;
-            }
 
             try
             {
@@ -532,7 +464,7 @@ namespace WPF_Zoo_Manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Database update error");
+                ShowDatabaseError(ex, "Database update error");
             }
         }
 
@@ -545,13 +477,12 @@ namespace WPF_Zoo_Manager
                 _editingItem is not Animal animal)
                 return;
 
-            string name = MyTextBox.Text.Trim();
-
-            if (name.Length is 0 or > 50)
-            {
-                MessageBox.Show("Name must contain 1–50 characters.");
+            if (!TryGetValidInput(
+                    MyTextBox.Text,
+                    "Name",
+                    errorTitle: null,
+                    out string name))
                 return;
-            }
 
             try
             {
@@ -590,8 +521,51 @@ namespace WPF_Zoo_Manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Database update error");
+                ShowDatabaseError(ex, "Database update error");
             }
+        }
+
+        private bool TryGetValidInput(
+            string input,
+            string fieldName,
+            string? errorTitle,
+            out string value)
+        {
+            value = input.Trim();
+
+            if (value.Length is > 0 and <= MaximumInputLength)
+                return true;
+
+            string message = $"{fieldName} must contain 1–{MaximumInputLength} characters.";
+
+            if (errorTitle is null)
+                MessageBox.Show(message);
+            else
+                MessageBox.Show(
+                    this,
+                    message,
+                    errorTitle,
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+
+            return false;
+        }
+
+        private void ShowDatabaseError(
+            Exception exception,
+            string title,
+            bool useBaseException = false)
+        {
+            string message = useBaseException
+                ? exception.GetBaseException().Message
+                : exception.Message;
+
+            MessageBox.Show(
+                this,
+                message,
+                title,
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
 
         private void SetEditingSource(ListBox listBox)
